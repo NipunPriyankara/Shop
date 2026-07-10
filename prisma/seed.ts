@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
@@ -112,6 +113,25 @@ async function main() {
       update: {},
       create: prod,
     });
+  }
+
+  // Seed admin user if not exists
+  const adminEmail = 'admin@glowlk.com';
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    await prisma.user.create({
+      data: {
+        name: 'GlowLK Admin',
+        email: adminEmail,
+        password: hashedPassword,
+        role: Role.ADMIN,
+      },
+    });
+    console.log('Admin user seeded!');
   }
 
   console.log('Seeding completed successfully!');
