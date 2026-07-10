@@ -52,6 +52,68 @@ async function main() {
     });
   }
 
+  const products = [
+    {
+      name: 'The Ordinary Niacinamide 10% + Zinc 1%',
+      slug: 'the-ordinary-niacinamide-10-zinc-1',
+      description: 'High-strength vitamin and mineral blemish formula. Niacinamide (Vitamin B3) is indicated to reduce the appearance of skin blemishes and congestion.',
+      price: 1850,
+      originalPrice: 2200,
+      images: JSON.stringify(['https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?q=80&w=600']),
+      brand: 'The Ordinary',
+      category: 'Serums',
+      stock: 50,
+      isActive: true,
+      isFeatured: true,
+      isBestSeller: true,
+      skinType: 'Oily, Acne-prone, Sensitive',
+      rating: 4.8,
+      numReviews: 24,
+    },
+    {
+      name: 'CeraVe Moisturizing Cream',
+      slug: 'cerave-moisturizing-cream',
+      description: 'A barrier-reinforcing moisturizing cream for dry and very dry skin. Developed with dermatologists, it contains 3 essential ceramides to help protect the skin\'s natural barrier.',
+      price: 3200,
+      originalPrice: 3500,
+      images: JSON.stringify(['https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=600']),
+      brand: 'CeraVe',
+      category: 'Moisturizers',
+      stock: 30,
+      isActive: true,
+      isFeatured: true,
+      isBestSeller: false,
+      skinType: 'Dry, Normal, Sensitive',
+      rating: 4.9,
+      numReviews: 18,
+    },
+    {
+      name: 'COSRX Advanced Snail 96 Mucin Power Essence',
+      slug: 'cosrx-snail-mucin-96-essence',
+      description: 'Lightweight essence which absorbs into skin fast to give skin a natural glow from the inside. This essence is created from nutritious, low-stimulation filtered snail mucin.',
+      price: 2950,
+      originalPrice: 3200,
+      images: JSON.stringify(['https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?q=80&w=600']),
+      brand: 'COSRX',
+      category: 'Serums',
+      stock: 25,
+      isActive: true,
+      isFeatured: false,
+      isBestSeller: true,
+      skinType: 'All skin types, Dry, Sensitive',
+      rating: 4.7,
+      numReviews: 42,
+    }
+  ];
+
+  for (const prod of products) {
+    await prisma.product.upsert({
+      where: { slug: prod.slug },
+      update: {},
+      create: prod,
+    });
+  }
+
   console.log('Seeding completed successfully!');
 }
 
