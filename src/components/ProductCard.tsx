@@ -105,7 +105,7 @@ export default function ProductCard({ product }: { product: Product }) {
             className={`absolute top-3 right-3 w-8 h-8 flex items-center justify-center z-20 transition-all duration-300 ${
               wishlisted 
                 ? 'bg-white border border-rose-gold text-rose-gold' 
-                : 'bg-white/90 border border-black/5 text-charcoal-muted hover:text-rose-gold hover:border-rose-gold/60 opacity-0 group-hover:opacity-100'
+                : 'bg-white/90 border border-black/5 text-charcoal-muted hover:text-rose-gold hover:border-rose-gold/60 opacity-100 md:opacity-0 md:group-hover:opacity-100'
             }`}
           >
             <Heart className={`w-4 h-4 transition-transform duration-300 active:scale-75 ${wishlisted ? 'fill-current text-rose-gold' : ''}`} />
