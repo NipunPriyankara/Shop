@@ -1,0 +1,133 @@
+// This is your Prisma schema file for MySQL (WAMP)
+// Run: npx prisma db push  to create tables
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CUSTOMER)
+  phone     String?
+  street    String?
+  city      String?
+  postalCode String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  logo        String    @default("")
+  description String?   @db.Text
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?   @db.Text
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  name          String
+  slug          String      @unique
+  description   String      @db.Text
+  price         Float
+  originalPrice Float?
+  images        String      @db.Text  // JSON array stored as string
+  brand         String
+  category      String
+  stock         Int         @default(0)
+  isActive      Boolean     @default(true)
+  isFeatured    Boolean     @default(false)
+  isBestSeller  Boolean     @default(false)
+  skinType      String?     // comma separated
+  rating        Float       @default(0)
+  numReviews    Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  brandRef      Brand?      @relation(fields: [brand], references: [name])
+  categoryRef   Category?   @relation(fields: [category], references: [name])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  street         String
+  city           String
+  postalCode     String?
+  subtotal       Float
+  shippingCost   Float       @default(0)
+  total          Float
+  paymentMethod  String      @default("cod")
+  status         OrderStatus @default(PENDING)
+  notes          String?     @db.Text
+  userId         String?
+  user           User?       @relation(fields: [userId], references: [id])
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  name      String
+  image     String?
+  price     Float
+  quantity  Int
+}
+
+model StoreSetting {
+  id                    String   @id @default("default")
+  storeName             String   @default("GlowLK")
+  storeEmail            String   @default("hello@glowlk.com")
+  storePhone            String   @default("+94 70 229 9696")
+  whatsapp              String   @default("+94702299696")
+  freeShippingThreshold Float    @default(5000)
+  standardShipping      Float    @default(350)
+  announcement          String   @default("🌟 Free delivery on orders above Rs. 5,000 | Cash on Delivery Available Island-wide")
+  logoUrl               String   @default("")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
