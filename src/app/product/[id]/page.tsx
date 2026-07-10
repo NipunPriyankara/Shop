@@ -5,10 +5,11 @@ import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, Star, Shield, Truck, ArrowLeft, Plus, Minus, CheckCircle, RefreshCw } from 'lucide-react';
+import { ShoppingCart, Star, Shield, Truck, ArrowLeft, Plus, Minus, CheckCircle, RefreshCw, Heart } from 'lucide-react';
 
 interface Product {
   _id: string;
@@ -28,10 +29,13 @@ interface Product {
 export default function ProductDetailPage() {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const { isWishlisted, addToWishlist, removeFromWishlist } = useWishlist();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  const wishlisted = product ? isWishlisted(product._id) : false;
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -39,6 +43,24 @@ export default function ProductDetailPage() {
       .then((d) => { setProduct(d.product); setLoading(false); })
       .catch(() => setLoading(false));
   }, [id]);
+
+  const handleWishlistToggle = () => {
+    if (!product) return;
+    if (wishlisted) {
+      removeFromWishlist(product._id);
+      toast.success(`${product.name} removed from wishlist 💔`);
+    } else {
+      addToWishlist({
+        productId: product._id,
+        name: product.name,
+        image: product.images[0] || '',
+        price: product.price,
+        brand: product.brand,
+        category: product.category,
+      });
+      toast.success(`${product.name} added to wishlist! ❤️`);
+    }
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -252,14 +274,30 @@ export default function ProductDetailPage() {
                   </button>
                 </div>
 
-                {/* Add to Cart button */}
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 btn-luxury-primary flex items-center justify-center gap-2.5 h-14 px-8 text-xs font-bold cursor-pointer"
-                >
-                  <ShoppingCart className="w-4 h-4 text-white" />
-                  <span>Add to Shopping Cart</span>
-                </button>
+                {/* Actions Wrapper */}
+                <div className="flex items-center gap-3 flex-1">
+                  {/* Add to Cart button */}
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex-1 btn-luxury-primary flex items-center justify-center gap-2.5 h-14 px-8 text-xs font-bold cursor-pointer"
+                  >
+                    <ShoppingCart className="w-4 h-4 text-white" />
+                    <span>Add to Shopping Cart</span>
+                  </button>
+
+                  {/* Wishlist Button */}
+                  <button
+                    onClick={handleWishlistToggle}
+                    className={`w-14 h-14 border flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                      wishlisted
+                        ? 'border-rose-gold text-rose-gold bg-rose-gold/5'
+                        : 'border-black/15 text-charcoal-muted hover:text-rose-gold hover:border-rose-gold/60'
+                    }`}
+                    title={wishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+                  >
+                    <Heart className={`w-5 h-5 ${wishlisted ? 'fill-current' : ''}`} />
+                  </button>
+                </div>
               </div>
             )}
 
